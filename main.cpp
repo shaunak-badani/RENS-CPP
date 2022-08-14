@@ -6,21 +6,18 @@
 #include "langevin.h"
 #include "fileoperations.h"
 #include "config.h"
+#include "remd.h"
 
-int main() {
+int main(int argc, char **argv) {
 
+    MPI_Init(&argc, &argv);
     setDefaultConfig();
     getConfigFromFile("langevin_2.json");
 
-
     System* sys = new Smit();
-    Integrator* stepper = new Langevin();
+    Integrator* stepper = new REMDIntegrator();
     FileOperations* fileOpObject = new FileOperations();
 
-    for(int i = 0 ; i < numSteps ; i++) {
-        stepper->step(sys);
-        if(i % outputPeriod == 0) {
-            sys->handleOutput((float)i * stepper->dt, fileOpObject);
-        }
-    }
+    stepper->step(sys, fileOpObject, numSteps);
+    MPI_Finalize();
 }

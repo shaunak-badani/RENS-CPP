@@ -63,8 +63,19 @@ void getConfigFromFile(std::string fileName) {
 
     // if(data.contains("temperatures"))
     //     samplingTemperatures = data["temperatures"];
-        
+}
 
+float temperature() {
+    int noOfReplicas;
+
+    MPI_Comm_size( MPI_COMM_WORLD, &noOfReplicas );
+
+    if(noOfReplicas > 1) {
+        int rank;
+        MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+        return samplingTemperatures[rank];
+    }
+    return samplingTemperature;
 }
  
 

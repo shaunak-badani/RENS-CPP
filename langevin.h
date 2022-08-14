@@ -6,6 +6,7 @@
 #include "config.h"
 #include "math.h"
 #include "utilities.h"
+#include "fileoperations.h"
 
 class Langevin : public Integrator {
     public:
@@ -20,9 +21,9 @@ class Langevin : public Integrator {
             this->damping_2 = pow(this->damping, 2);
         }
 
-        void step(System* sys, int numSteps = 1) {
+        void step(System* sys, FileOperations* fileOpObject, int numSteps = 1) {
 
-            float kT = samplingTemperature * kB;
+            float kT = temperature() * kB;
             float sigma;
             float randomNumberHolder;
 
@@ -56,6 +57,10 @@ class Langevin : public Integrator {
                 for(int i = 0 ; i < N ; i++) 
                     for(int j = 0 ; j < d ; j++)
                         sys->velocities[i][j] += (this->dt / 2) * (force[i][j] / sys->masses[i]);
+
+                if(n % outputPeriod == 0) {
+                    sys->handleOutput((float)(n * this->dt), fileOpObject);
+                }
             }
 
         }

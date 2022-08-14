@@ -6,6 +6,10 @@
 #include <vector>
 #include <fstream>
 #include <iomanip>
+#include "mpi.h"
+#include <sys/stat.h>
+#include <sys/types.h>
+
 
 class FileOperations {
     public:
@@ -15,17 +19,47 @@ class FileOperations {
         std::ofstream velocityFileStream;
         std::ofstream scalarFileStream;
         std::ofstream phaseVectorFileStream;
+        std::string folderName;
+        std::string intermediateFolder;
+
+        std::ofstream exchangesFileStream;
+        std::unordered_map<std::string, float> exchangesScalars;
+        bool exchangesHeaders;
 
         bool headersWritten;
         FileOperations() {
+            this->folderName = "currentRun";
+            int nReplicas;
+            MPI_Comm_size( MPI_COMM_WORLD, &nReplicas );
+            this->intermediateFolder = ".";
+
+            if(nReplicas > 1) {
+                int rank;
+                MPI_Comm_rank( MPI_COMM_WORLD, &rank ); 
+                this->intermediateFolder = std::to_string(rank);
+            }
+
+            // int statusMessage = mkdir(this->folderName.c_str(), 0777);
+            // if(statusMessage == -1) {
+            //     std::cerr << "Error while creating directory" << std::endl;
+            // }
+            std::string cmd = "mkdir -p " + this->folderName + "/" + this->intermediateFolder;
+            system(cmd.c_str());
+
+            std::string genericFolderPath = this->folderName + "/" + this->intermediateFolder;
+
             
-            this->positionFileStream.open("./p.txt");
-            this->velocityFileStream.open("./v.txt");
-            this->scalarFileStream.open("./scalars.txt");
-            this->phaseVectorFileStream.open("./end.rst");
+            this->positionFileStream.open(genericFolderPath + "/p.txt");
+            this->velocityFileStream.open(genericFolderPath + "/v.txt");
+            this->scalarFileStream.open(genericFolderPath + "/scalars.txt");
+            this->phaseVectorFileStream.open(genericFolderPath + "/end.rst");
             this->headersWritten = false;
 
+            this->exchangesFileStream.open(this->folderName + "/exchanges.txt");
+            this->exchangesHeaders = false;
+
         }
+
         void registerScalarData(std::string key, float value) {
             // if(scalars.contains(key))
             //     std::cout << "The hashmap contains the key. Overriding..." << std::endl;
@@ -84,11 +118,40 @@ class FileOperations {
             (this->velocityFileStream) << std::endl;
         }
 
+        /* REMD + RENS SCALARS */
+
+        void registerExchangesScalars(std::string key, float value) {
+            exchangesScalars[key] = value;
+        }
+
+        void writeExchangesScalars(float timeStep) {
+            if(!(this->exchangesHeaders)) {
+                (this->exchangesFileStream) << "Time" << " ";
+                for(auto scalarPair:this->exchangesScalars) 
+                    (this->exchangesFileStream) << scalarPair.first << " ";
+                (this->exchangesFileStream) << std::endl;
+                this->exchangesHeaders = true;
+            }
+            (this->exchangesFileStream) << std::fixed << std::setprecision(3);
+            (this->exchangesFileStream) << timeStep << " ";
+
+            (this->exchangesFileStream) << std::setprecision(5);
+            for(auto scalarPair:this->exchangesScalars) {
+                (this->exchangesFileStream) << scalarPair.second << " ";
+            }
+            (this->exchangesFileStream) << std::endl;
+        }
+
+        /* END REMD + RENS SCALARS */
+
         ~FileOperations() {
             this->positionFileStream.close();
             this->velocityFileStream.close();
             this->scalarFileStream.close();
             this->phaseVectorFileStream.close();
+
+            if(this->exchangesHeaders)
+                this->exchangesFileStream.close();
         }
 };
 

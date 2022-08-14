@@ -9,8 +9,8 @@ class MicroCanonical : public Integrator {
             this->dt = 0.001;
         }
 
-        void step(System* sys, int numSteps = 1) {
-            for(int i = 0 ; i < numSteps ; i++) {
+        void step(System* sys, FileOperations* fileOpObject, int numSteps = 1) {
+            for(int n = 0 ; n < numSteps ; n++) {
                 std::vector<std::vector<float>> force = sys->force();
                 for(int i = 0 ; i < sys->numberOfParticles ; i++) {
                     for(int j = 0 ; j < sys->systemDimensionality ; j++) {
@@ -23,6 +23,10 @@ class MicroCanonical : public Integrator {
                 for(int i = 0 ; i < sys->numberOfParticles ; i++) {
                     for(int j = 0 ; j < sys->systemDimensionality ; j++)
                         sys->velocities[i][j] += this->dt * (force[i][j] / (2 * (sys->masses[i])));
+                }
+
+                if(n % outputPeriod == 0) {
+                    sys->handleOutput((float)(n * this->dt), fileOpObject);
                 }
             }
         }
