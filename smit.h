@@ -46,11 +46,7 @@ class Smit : public System {
         }
 
         float potentialEnergy() {
-            float totalPE = 0;
-            for(int i = 0 ; i < this->numberOfParticles ; i++) {
-                totalPE += this->U(this->positions[i][0]);
-            }
-            return totalPE;
+            return this->potentialEnergy(this->positions);
         }
 
         float potentialEnergy(std::vector<std::vector<float>>& positions) {

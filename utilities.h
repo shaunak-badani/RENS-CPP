@@ -7,7 +7,7 @@ std::vector<std::vector<float>> initializeRandomVector(int outerSize, int innerS
 
     for(int i = 0 ; i < outerSize ; i++) {
         for(int j = 0 ; j < innerSize ; j++) {
-            returnValue[i][j] = low + (high - low) * (float) rand() / RAND_MAX;
+            returnValue[i][j] = low + (high - low) * ((float) rand() / RAND_MAX);
         }
     }
     return returnValue;

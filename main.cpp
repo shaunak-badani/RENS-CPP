@@ -3,10 +3,12 @@
 #include "system.h"
 #include "integrator.h"
 #include "microcanonical.h"
+#include "fileoperations.h"
 
 int main() {
     System* sys = new Smit();
     Integrator* stepper = new MicroCanonical();
+    FileOperations* fileOpObject = new FileOperations();
 
     // Config variables
     int numSteps = 1000;
@@ -15,7 +17,7 @@ int main() {
     for(int i = 0 ; i < numSteps ; i++) {
         stepper->step(sys);
         if(i % outputPeriod == 0) {
-            std::cout << sys->totalEnergy() << std::endl;
+            sys->handleOutput((float)i * stepper->dt, fileOpObject);
         }
     }
 }
