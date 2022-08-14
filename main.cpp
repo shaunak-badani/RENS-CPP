@@ -3,11 +3,12 @@
 #include "system.h"
 #include "integrator.h"
 #include "microcanonical.h"
+#include "langevin.h"
 #include "fileoperations.h"
 
 int main() {
     System* sys = new Smit();
-    Integrator* stepper = new MicroCanonical();
+    Integrator* stepper = new Langevin();
     FileOperations* fileOpObject = new FileOperations();
 
     // Config variables

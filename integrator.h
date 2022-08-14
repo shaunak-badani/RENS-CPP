@@ -7,7 +7,7 @@ class Integrator {
     public:
         float dt;
         
-        virtual void step(System* sys, int nSteps = 1) = 0;
+        virtual void step(System* sys, int numSteps = 1) = 0;
 
 };
 

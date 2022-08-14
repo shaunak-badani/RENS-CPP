@@ -1,6 +1,10 @@
+#ifndef UTILITIES_H
+#define UTILITIES_H
+
 #include <iostream>
 #include <cstdlib>
 #include <vector>
+#include <random>
 
 std::vector<std::vector<float>> initializeRandomVector(int outerSize, int innerSize, float low = 0.0f, float high = 1.0f) {
     std::vector<std::vector<float>> returnValue(outerSize, std::vector<float>(innerSize, innerSize));
@@ -12,3 +16,18 @@ std::vector<std::vector<float>> initializeRandomVector(int outerSize, int innerS
     }
     return returnValue;
 }
+
+float generateUniformRandom(float low = 0.0f, float high = 1.0f) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dis(low, high);
+    return dis(gen);
+}
+
+float generateNormalRandom(float mean = 0.0f, float stddev = 1.0f) {
+    std::default_random_engine generator;
+    std::normal_distribution<double> distribution(mean, stddev);
+    return (float) distribution(generator);
+}
+
+#endif
