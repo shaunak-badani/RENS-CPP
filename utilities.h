@@ -6,6 +6,7 @@
 #include <vector>
 #include <random>
 
+
 std::vector<std::vector<float>> initializeRandomVector(int outerSize, int innerSize, float low = 0.0f, float high = 1.0f) {
     std::vector<std::vector<float>> returnValue(outerSize, std::vector<float>(innerSize, innerSize));
 
@@ -17,17 +18,27 @@ std::vector<std::vector<float>> initializeRandomVector(int outerSize, int innerS
     return returnValue;
 }
 
+std::default_random_engine generator;
+
 float generateUniformRandom(float low = 0.0f, float high = 1.0f) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    // std::random_device rd;
+    // std::mt19937 gen(rd());
     std::uniform_real_distribution<float> dis(low, high);
-    return dis(gen);
+    return dis(generator);
 }
 
 float generateNormalRandom(float mean = 0.0f, float stddev = 1.0f) {
-    std::default_random_engine generator;
-    std::normal_distribution<double> distribution(mean, stddev);
-    return (float) distribution(generator);
+    std::normal_distribution<float> distribution(mean, stddev);
+    return distribution(generator);
+}
+
+std::vector<std::vector<float>> generateNormalVector(int a, int b, float mean = 0.0f, float stddev = 1.0f) {
+    std::vector<std::vector<float>> normalVector(a, std::vector<float>(b, 0.0f));
+    for(int i = 0 ; i < a ; i++) 
+        for(int j = 0 ; j < b ; j++)
+            normalVector[i][j] = generateNormalRandom(mean, stddev);
+        
+    return normalVector;
 }
 
 #endif

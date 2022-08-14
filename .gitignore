@@ -1,0 +1,6 @@
+notebooks
+*.txt
+*.rst
+*.json
+.vscode
+a.out

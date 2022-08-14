@@ -19,10 +19,10 @@ class Langevin : public Integrator {
             this->damping = exp(-this->friction * this->dt);
             this->damping_2 = pow(this->damping, 2);
         }
-        
+
         void step(System* sys, int numSteps = 1) {
 
-            float kT = Config::samplingTemperature * kB;
+            float kT = samplingTemperature * kB;
             float sigma;
             float randomNumberHolder;
 
@@ -31,7 +31,6 @@ class Langevin : public Integrator {
 
             int N = sys->velocities.size();
             int d = sys->velocities[0].size();
-            std::cout << this->dt << std::endl;
             for(int n = 0 ; n < numSteps ; n++) {
                 for(int i = 0 ; i < N ; i++) {
                     for(int j = 0 ; j < d ; j++) {
@@ -45,11 +44,13 @@ class Langevin : public Integrator {
                         sys->velocities[i][j] *= this->damping;
                         sigma = sqrt((kT / sys->masses[i]) * (1 - this->damping_2));
                         randomNumberHolder = generateNormalRandom(0, sigma);
+                        // std::cout << (randomNumberHolder) << std::endl;
                         sys->velocities[i][j] += randomNumberHolder;
 
-                        sys->positions[i][j] += sys->velocities[i][j];
+                        sys->positions[i][j] += (this->dt / 2) * sys->velocities[i][j];
                     }
                 }
+
 
                 force = sys->force();
                 for(int i = 0 ; i < N ; i++) 

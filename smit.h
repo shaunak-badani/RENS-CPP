@@ -7,12 +7,13 @@
 #include "units.h"
 #include "utilities.h"
 #include "math.h"
+#include "config.h"
 
 class Smit : public System {
     public:
         void setupSystem() {
             // get N from config file
-            this->numberOfParticles = 10;
+            this->numberOfParticles = numParticles;
             this->systemDimensionality = 1;
             for(int i = 0 ; i < this->numberOfParticles ; i++)
                 this->masses.push_back(1.0f);
@@ -26,15 +27,18 @@ class Smit : public System {
         }
 
         void initializeVelocities() {
-            // get temperature from config file, for now setting it to 0.3
-            float temperature = 0.3;
 
             int N = 10;
-            float beta = 1 / (kB * temperature);
+            float sigma;
+
+            // this->velocities = std::vector<std::vector<float>(this->systemDimensionality)>(this->numParticles);
 
             for(int i = 0 ; i < this->numberOfParticles ; i++) {
-                this->velocities.push_back(std::vector<float>(
-                                this->systemDimensionality, 1.0f));
+                this->velocities.push_back(std::vector<float>(this->systemDimensionality));
+                for(int j = 0 ; j < this->systemDimensionality ; j++) {
+                    sigma = sqrt(kB * samplingTemperature / this->masses[i]);
+                    this->velocities[i][j] = generateNormalRandom(0.0f, sigma);
+                }
             }
 
         }

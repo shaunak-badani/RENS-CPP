@@ -5,15 +5,17 @@
 #include "microcanonical.h"
 #include "langevin.h"
 #include "fileoperations.h"
+#include "config.h"
 
 int main() {
+
+    setDefaultConfig();
+    getConfigFromFile("langevin_2.json");
+
+
     System* sys = new Smit();
     Integrator* stepper = new Langevin();
     FileOperations* fileOpObject = new FileOperations();
-
-    // Config variables
-    int numSteps = 1000;
-    int outputPeriod = 100;
 
     for(int i = 0 ; i < numSteps ; i++) {
         stepper->step(sys);
