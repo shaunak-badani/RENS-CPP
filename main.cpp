@@ -9,6 +9,7 @@
 #include "remd.h"
 #include "rens.h"
 #include "mpi.h"
+#include "mullermod.h"
 
 int main(int argc, char **argv) {
 
@@ -26,20 +27,37 @@ int main(int argc, char **argv) {
     }
     printConfig(rank);
 
-    System* sys = new Smit();
+    System* sys;
+    if(!systemName.compare("1D_Smit"))
+        sys = new Smit();
+    else if(!systemName.compare("Muller"))
+        sys = new Muller();
+    else if(!systemName.compare("MullerMod"))
+        sys = new MullerMod();
+    else
+        sys = new Smit();
+
     Integrator* stepper;
 
     if(!runType.compare("nve"))
         stepper = new MicroCanonical();
-    if(!runType.compare("nvt")) 
+    else if(!runType.compare("nvt")) 
         stepper = new Langevin();
-    if(!runType.compare("remd"))
+    else if(!runType.compare("remd"))
         stepper = new REMDIntegrator();
-    if(!runType.compare("rens")) 
+    else if(!runType.compare("rens")) 
         stepper = new RENSIntegrator();
-    
+    else
+        stepper = new MicroCanonical();
+
+    std::vector<std::vector<float>> testVector = {{0.0f, 0.0f}};
+    std::vector<std::vector<float>> forceValue = sys->force(testVector);
     FileOperations* fileOpObject = new FileOperations();
 
+    float f = sys->potentialEnergy(testVector);
+    std::cout << " PE : " << f << std::endl;
+    std::cout << " Force : " << forceValue[0][0] << " " << forceValue[0][1] << std::endl;
     stepper->step(sys, fileOpObject, numSteps);
+
     MPI_Finalize();
 }

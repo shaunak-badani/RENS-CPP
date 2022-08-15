@@ -2,6 +2,7 @@
 #define SYSTEM_H
 
 #include "units.h"
+#include "utilities.h"
 #include <vector>
 #include <math.h>
 #include "fileoperations.h"
@@ -19,7 +20,17 @@ class System {
 
         virtual void setupSystem() = 0;
         virtual void initializePositions() = 0;
-        virtual void initializeVelocities() = 0;
+
+        void initializeVelocities() {
+            float sigma;
+            for(int i = 0 ; i < this->numberOfParticles ; i++) {
+                this->velocities.push_back(std::vector<float>(this->systemDimensionality));
+                for(int j = 0 ; j < this->systemDimensionality ; j++) {
+                    sigma = sqrt(kB * temperature() / this->masses[i]);
+                    this->velocities[i][j] = generateNormalRandom(0.0f, sigma);
+                }
+            }
+        }
 
         virtual float potentialEnergy() = 0;
         virtual float potentialEnergy(std::vector<std::vector<float>>& positions) = 0;

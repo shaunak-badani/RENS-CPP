@@ -25,21 +25,6 @@ class Smit : public System {
                                             -2.0f, 2.0f);
         }
 
-        void initializeVelocities() {
-
-            int N = 10;
-            float sigma;
-
-            for(int i = 0 ; i < this->numberOfParticles ; i++) {
-                this->velocities.push_back(std::vector<float>(this->systemDimensionality));
-                for(int j = 0 ; j < this->systemDimensionality ; j++) {
-                    sigma = sqrt(kB * temperature() / this->masses[i]);
-                    this->velocities[i][j] = generateNormalRandom(0.0f, sigma);
-                }
-            }
-
-        }
-
         Smit() {
             this->setupSystem();
             this->initializePositions();
