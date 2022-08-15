@@ -12,10 +12,25 @@ int numSteps;
 int numParticles;
 int outputPeriod;
 std::string runType;
+std::string runName;
 std::string systemName;
 std::string rst;
 bool isRstPresent;
+bool ada;
 float tauValue;
+
+float temperature() {
+    int noOfReplicas;
+
+    MPI_Comm_size( MPI_COMM_WORLD, &noOfReplicas );
+
+    if(noOfReplicas > 1) {
+        int rank;
+        MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+        return samplingTemperatures[rank];
+    }
+    return samplingTemperature;
+}
 
 void setDefaultConfig() {
     samplingTemperature = 0.3;
@@ -24,9 +39,25 @@ void setDefaultConfig() {
     numParticles = 10;
     outputPeriod = 100;
     runType = "nve";
+    runName = "currentRun";
     systemName = "1D_Smit";
-    tauValue = 0.01f;
+    tauValue = 0.25f;
     isRstPresent = false;
+    ada = false;
+}
+
+void printConfig(int rank) {
+    std::cout << "Temperature : " << temperature() << std::endl;
+
+    if(rank == 0) {
+        std::cout << "Number of steps : " << numSteps << std::endl;
+        std::cout << "Number of particles : " << numParticles << std::endl;
+        std::cout << "Output Period : " << outputPeriod << std::endl;
+        std::cout << "Run Type : " << runType << std::endl;
+        std::cout << "System : " << systemName << std::endl;
+        std::cout << "Tau Value : " << tauValue << std::endl;
+    }
+   
 }
 
 void getConfigFromFile(std::string fileName) {
@@ -36,6 +67,11 @@ void getConfigFromFile(std::string fileName) {
 
     if(data.contains("temperature"))
         samplingTemperature = data["temperature"];
+
+    if(data.contains("temperatures")) {
+        for(int i = 0 ; i < data["temperatures"].size() ; i++)
+        samplingTemperatures[i] = data["temperatures"][i];
+    }
     
     if(data.contains("num_steps"))
         numSteps = data["num_steps"];
@@ -45,6 +81,9 @@ void getConfigFromFile(std::string fileName) {
 
     if(data.contains("run_type"))
         runType = data["run_type"];
+    
+    if(data.contains("run_name"))
+        runName = data["run_name"];
 
     if(data.contains("system"))
         systemName = data["system"];
@@ -59,23 +98,17 @@ void getConfigFromFile(std::string fileName) {
 
     if(data.contains("num_particles"))
         numParticles = data["num_particles"];
+    
+    if(data.contains("ada"))
+        ada = data["ada"];
+    
+    
 
     // if(data.contains("temperatures"))
     //     samplingTemperatures = data["temperatures"];
 }
 
-float temperature() {
-    int noOfReplicas;
 
-    MPI_Comm_size( MPI_COMM_WORLD, &noOfReplicas );
-
-    if(noOfReplicas > 1) {
-        int rank;
-        MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-        return samplingTemperatures[rank];
-    }
-    return samplingTemperature;
-}
  
 
 #endif

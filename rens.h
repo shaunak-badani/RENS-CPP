@@ -54,7 +54,6 @@ class RENSIntegrator : public REMDIntegrator {
 
             
             this->heat = 0.0f;
-            std::cout << "Here : " << this->replicaNo << " " << this->peerReplicaNo << std::endl;
             
             // Need to exchange temperatures between peer and self
             if(peerReplicaNo >= 0 && peerReplicaNo < this->noOfReplicas) {
@@ -90,8 +89,7 @@ class RENSIntegrator : public REMDIntegrator {
                 this->w += (sys->kineticEnergy(v) + sys->potentialEnergy()) / (kB * T_B);
                 this->w -= this->heat;
 
-                // bool exchange = this->determineExchange(sys, fileOpObject, timeStep);
-                bool exchange = true;
+                bool exchange = this->determineExchange(sys, fileOpObject, timeStep);
 
                 if(!exchange) {
                     sys->positions = this->initialPositions;
@@ -99,8 +97,10 @@ class RENSIntegrator : public REMDIntegrator {
                 }
                 else {
                     sys->velocities = v;
-                    this->swapPhaseSpaceVectors(sys, this->replicaNo);
+                    this->swapPhaseSpaceVectors(sys, peerReplicaNo);
                 }
+
+                return;
             }
 
             // Perform the work simulation if currentStep < totalWorkSimulationSteps
@@ -141,15 +141,17 @@ class RENSIntegrator : public REMDIntegrator {
         bool determineExchange(System* sys, FileOperations* fileOpObject, float timeStep) {
 
             float wA = this->w;
+            float wB = 0;
             bool exchange = false;
             float acceptanceProbability = 1.0f;
-            std::vector<float> dataValues;
+            std::vector<float> dataValues(8, 0.0f);
 
             // arr = []
             if(this->peerReplicaNo >= 0 && this->peerReplicaNo < this->noOfReplicas) {
-                if(this->replicaNo > this->peerReplicaNo) {
-                    float wB;
-                    MPI_Recv( &wB, 1, MPI_FLOAT, this->peerReplicaNo, WORK_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE );
+
+                if(this->replicaNo < this->peerReplicaNo) {
+                    MPI_Recv( &(wB), 1, MPI_FLOAT, this->peerReplicaNo, WORK_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE );
+
                     float w = wA + wB;
                     
                     if(w < 0) {
@@ -176,18 +178,18 @@ class RENSIntegrator : public REMDIntegrator {
                     MPI_Send( &wA, 1, MPI_FLOAT, this->peerReplicaNo, WORK_TAG, MPI_COMM_WORLD );
                     MPI_Recv( &(dataValues[0]), 8, MPI_FLOAT, this->peerReplicaNo,
                                 DATA_VALUES_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE );
-                    
                     exchange = dataValues[3];
                 }
             }
+
             if(this->replicaNo % 2 != 0 && dataValues.size() > 0) {
                 MPI_Send( &(dataValues[0]), (int)dataValues.size(), MPI_FLOAT, 0,
                                  DATA_VALUES_TAG, MPI_COMM_WORLD );  
             }
 
             if(this->replicaNo == 0) {
-                for(int i = 1 ; i < this->noOfReplicas + 1 ; i += 2) {
-                    MPI_Recv( &(dataValues[0]), 8, MPI_FLOAT, 0,
+                for(int i = 1 ; i < this->noOfReplicas ; i += 2) {
+                    MPI_Recv( &(dataValues[0]), 8, MPI_FLOAT, i,
                                 DATA_VALUES_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE );
                     this->writeExchanges(dataValues, fileOpObject, timeStep );
                 } 
@@ -199,10 +201,10 @@ class RENSIntegrator : public REMDIntegrator {
             fileOpObject->registerExchangesScalars("Src", dataValues[1]);
             fileOpObject->registerExchangesScalars("Dest", dataValues[2]);
             fileOpObject->registerExchangesScalars("Exchanged", dataValues[3]);
-            fileOpObject->registerExchangesScalars("pAcc", dataValues[4]);
+            fileOpObject->registerExchangesScalars("Prob", dataValues[4]);
             fileOpObject->registerExchangesScalars("w", dataValues[5]);
-            fileOpObject->registerExchangesScalars("wA", dataValues[6]);
-            fileOpObject->registerExchangesScalars("wB", dataValues[7]);
+            fileOpObject->registerExchangesScalars("w_a", dataValues[6]);
+            fileOpObject->registerExchangesScalars("w_b", dataValues[7]);
             fileOpObject->writeExchangesScalars(timeStep);
         }
 
@@ -253,7 +255,6 @@ class RENSIntegrator : public REMDIntegrator {
 
         void step(System* sys, FileOperations* fileOpObject, int numSteps = 1) {
             for(int i = 0 ; i < numSteps ; i++) {
-                std::cout << "i : " << i << " mode : " << this->mode << std::endl;
                 if(!this->mode) {
                     stepper->step(sys, fileOpObject);
                     this->attemptSwitching(sys);

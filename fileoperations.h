@@ -9,6 +9,7 @@
 #include "mpi.h"
 #include <sys/stat.h>
 #include <sys/types.h>
+#include "config.h"
 
 
 class FileOperations {
@@ -28,7 +29,7 @@ class FileOperations {
 
         bool headersWritten;
         FileOperations() {
-            this->folderName = "currentRun";
+            this->folderName = runName;
             int nReplicas;
             MPI_Comm_size( MPI_COMM_WORLD, &nReplicas );
             this->intermediateFolder = ".";
@@ -37,6 +38,10 @@ class FileOperations {
                 int rank;
                 MPI_Comm_rank( MPI_COMM_WORLD, &rank ); 
                 this->intermediateFolder = std::to_string(rank);
+            }
+
+            if(ada) {
+                this->folderName = "/scratch/shaunak/CPPRun/" + this->folderName;
             }
 
             // int statusMessage = mkdir(this->folderName.c_str(), 0777);
