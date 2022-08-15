@@ -57,7 +57,6 @@ class FileOperations {
 
             this->exchangesFileStream.open(this->folderName + "/exchanges.txt");
             this->exchangesHeaders = false;
-
         }
 
         void registerScalarData(std::string key, float value) {

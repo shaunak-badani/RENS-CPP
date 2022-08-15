@@ -7,6 +7,7 @@
 #include "fileoperations.h"
 #include "config.h"
 #include "remd.h"
+#include "rens.h"
 
 int main(int argc, char **argv) {
 
@@ -15,7 +16,7 @@ int main(int argc, char **argv) {
     getConfigFromFile("langevin_2.json");
 
     System* sys = new Smit();
-    Integrator* stepper = new REMDIntegrator();
+    Integrator* stepper = new RENSIntegrator();
     FileOperations* fileOpObject = new FileOperations();
 
     stepper->step(sys, fileOpObject, numSteps);

@@ -20,6 +20,14 @@ std::vector<std::vector<float>> initializeRandomVector(int outerSize, int innerS
 
 std::default_random_engine generator;
 
+// want to generate numbers in range [a, b)
+int generateUniformRandomInt(int low = 0, int high = 1) {
+    // std::random_device rd;
+    // std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dis(low, high - 1);
+    return dis(generator);
+}
+
 float generateUniformRandom(float low = 0.0f, float high = 1.0f) {
     // std::random_device rd;
     // std::mt19937 gen(rd());

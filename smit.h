@@ -12,7 +12,6 @@
 class Smit : public System {
     public:
         void setupSystem() {
-            // get N from config file
             this->numberOfParticles = numParticles;
             this->systemDimensionality = 1;
             for(int i = 0 ; i < this->numberOfParticles ; i++)

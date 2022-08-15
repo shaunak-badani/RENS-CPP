@@ -27,7 +27,6 @@ void setDefaultConfig() {
     systemName = "1D_Smit";
     tauValue = 0.01f;
     isRstPresent = false;
-    
 }
 
 void getConfigFromFile(std::string fileName) {
