@@ -10,6 +10,7 @@
 #include "rens.h"
 #include "mpi.h"
 #include "mullermod.h"
+#include "leps.h"
 
 int main(int argc, char **argv) {
 
@@ -34,6 +35,10 @@ int main(int argc, char **argv) {
         sys = new Muller();
     else if(!systemName.compare("MullerMod"))
         sys = new MullerMod();
+    else if(!systemName.compare("LEPS_I"))
+        sys = new LEPS();
+    else if(!systemName.compare("LEPS_II"))
+        sys = new LEPS2();
     else
         sys = new Smit();
 
@@ -50,7 +55,7 @@ int main(int argc, char **argv) {
     else
         stepper = new MicroCanonical();
 
-    std::vector<std::vector<float>> testVector = {{0.0f, 0.0f}};
+    std::vector<std::vector<float>> testVector = {{1.0f, -1.0f}};
     std::vector<std::vector<float>> forceValue = sys->force(testVector);
     FileOperations* fileOpObject = new FileOperations();
 
