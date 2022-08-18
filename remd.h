@@ -4,7 +4,8 @@
 #define POTENTIAL_TAG 60
 #define TEMPERATURE_TAG 61
 #define EXCHANGE_TAG 62
-#define POSITION_TAG 63
+#define POSITION_TAG_1 63
+#define POSITION_TAG_2 64
 
 #include "integrator.h"
 #include "system.h"
@@ -14,13 +15,14 @@
 
 class REMDIntegrator : public Integrator {
     public:
-        Integrator* stepper;
+        Langevin* stepper;
         int exchangePeriod;
         int replicaNo;
         bool isMaster;
 
         REMDIntegrator() {
             stepper = new Langevin();
+            stepper->enableOutput = false;
             this->dt = stepper->dt;
             this->exchangePeriod = 100;
             MPI_Comm_rank( MPI_COMM_WORLD, &replicaNo );
@@ -85,29 +87,38 @@ class REMDIntegrator : public Integrator {
         void swapPhaseSpaceVectors(System* sys, bool swapPartner) {
             int N = sys->velocities.size();
             int d = sys->velocities[0].size();
+
             std::vector<std::vector<float>> temporaryStorageVector(
                                         N, std::vector<float>(d, 0.0f));
 
             if(this->isMaster) {
-                MPI_Send( &(sys->positions[0][0]), N * d, MPI_FLOAT, swapPartner, POSITION_TAG, MPI_COMM_WORLD );
-                MPI_Recv( &(temporaryStorageVector[0][0]), N * d, MPI_FLOAT, swapPartner, POSITION_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE );
+                for(int i = 0 ; i < N ; i++) {
+                    MPI_Send( &(sys->positions[i][0]), d, MPI_FLOAT, swapPartner, POSITION_TAG_1, MPI_COMM_WORLD );
+                    MPI_Recv( &(temporaryStorageVector[i][0]), d, MPI_FLOAT, swapPartner, POSITION_TAG_2, MPI_COMM_WORLD, MPI_STATUS_IGNORE );
+                }
             }
 
             if(!this->isMaster) {
-                MPI_Recv( &(temporaryStorageVector[0][0]), N * d, MPI_FLOAT, swapPartner, POSITION_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE );
-                MPI_Send( &(sys->positions[0][0]), N * d, MPI_FLOAT, swapPartner, POSITION_TAG, MPI_COMM_WORLD );
+                for(int i = 0 ; i < N ; i++) {
+                    MPI_Recv( &(temporaryStorageVector[i][0]), d, MPI_FLOAT, swapPartner, POSITION_TAG_1, MPI_COMM_WORLD, MPI_STATUS_IGNORE );
+                    MPI_Send( &(sys->positions[i][0]), d, MPI_FLOAT, swapPartner, POSITION_TAG_2, MPI_COMM_WORLD );
+                }
             }
 
             sys->positions = temporaryStorageVector;
 
             if(this->isMaster) {
-                MPI_Send( &(sys->velocities[0][0]), N * d, MPI_FLOAT, swapPartner, POSITION_TAG, MPI_COMM_WORLD );
-                MPI_Recv( &(temporaryStorageVector[0][0]), N * d, MPI_FLOAT, swapPartner, POSITION_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE );
+                for(int i = 0 ; i < N ; i++) {
+                    MPI_Send( &(sys->velocities[i][0]), d, MPI_FLOAT, swapPartner, POSITION_TAG_1, MPI_COMM_WORLD );
+                    MPI_Recv( &(temporaryStorageVector[i][0]), d, MPI_FLOAT, swapPartner, POSITION_TAG_2, MPI_COMM_WORLD, MPI_STATUS_IGNORE );
+                }
             }
 
             if(!this->isMaster) {
-                MPI_Recv( &(temporaryStorageVector[0][0]), N * d, MPI_FLOAT, swapPartner, POSITION_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE );
-                MPI_Send( &(sys->velocities[0][0]), N * d, MPI_FLOAT, swapPartner, POSITION_TAG, MPI_COMM_WORLD );
+                for(int i = 0 ; i < N ; i++) {
+                    MPI_Recv( &(temporaryStorageVector[i][0]), d, MPI_FLOAT, swapPartner, POSITION_TAG_1, MPI_COMM_WORLD, MPI_STATUS_IGNORE );
+                    MPI_Send( &(sys->velocities[i][0]), d, MPI_FLOAT, swapPartner, POSITION_TAG_2, MPI_COMM_WORLD );
+                }
             }
             sys->velocities = temporaryStorageVector;
         }
@@ -140,6 +151,10 @@ class REMDIntegrator : public Integrator {
                         fileOpObject->registerExchangesScalars("Exchanged", exchange);
                         fileOpObject->writeExchangesScalars((float)n * this->dt);
                     }
+                }
+
+                if(n % outputPeriod == 0) {
+                    sys->handleOutput((float) n * this->dt, fileOpObject);
                 }
             }
         }

@@ -36,12 +36,12 @@ void setDefaultConfig() {
     samplingTemperature = 0.3;
     samplingTemperatures = {0.3f, 2.0f};
     numSteps = 1000;
-    numParticles = 10;
+    numParticles = 1;
     outputPeriod = 100;
     runType = "nve";
     runName = "currentRun";
     systemName = "1D_Smit";
-    tauValue = 0.25f;
+    tauValue = 0.024f;
     isRstPresent = false;
     ada = false;
 }

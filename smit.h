@@ -22,7 +22,7 @@ class Smit : public System {
         void initializePositions() {
             this->positions = initializeRandomVector(this->numberOfParticles,
                                             this->systemDimensionality,
-                                            -2.0f, 2.0f);
+                                            -2.0f, 2.0f);   
         }
 
         Smit() {

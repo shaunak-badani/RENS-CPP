@@ -35,7 +35,7 @@ class RENSIntegrator : public REMDIntegrator {
         RENSIntegrator() {
             this->tau = tauValue;
             this->attemptRate = 0.166;
-            mode = 0;
+            this->mode = 0;
             this->numWorkSimulationSteps = round(this->tau / this->dt);
             this->andersenUpdateFrequency = 500;
 
@@ -88,6 +88,7 @@ class RENSIntegrator : public REMDIntegrator {
 
                 this->w += (sys->kineticEnergy(v) + sys->potentialEnergy()) / (kB * T_B);
                 this->w -= this->heat;
+
 
                 bool exchange = this->determineExchange(sys, fileOpObject, timeStep);
 
@@ -194,6 +195,7 @@ class RENSIntegrator : public REMDIntegrator {
                     this->writeExchanges(dataValues, fileOpObject, timeStep );
                 } 
             }
+            return exchange;
         }
 
         void writeExchanges( std::vector<float> dataValues, FileOperations* fileOpObject, float timeStep ) {
@@ -258,10 +260,14 @@ class RENSIntegrator : public REMDIntegrator {
                 if(!this->mode) {
                     stepper->step(sys, fileOpObject);
                     this->attemptSwitching(sys);
+                    
+                    if(i % outputPeriod)
+                        sys->handleOutput((float) i * this->dt, fileOpObject);
                 }
                 else {
                     this->performWorkSimulation(sys, fileOpObject, (float) i * this->dt);
                 }
+                
             }
         }
 };

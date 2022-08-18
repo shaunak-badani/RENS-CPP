@@ -55,13 +55,8 @@ int main(int argc, char **argv) {
     else
         stepper = new MicroCanonical();
 
-    std::vector<std::vector<float>> testVector = {{1.0f, -1.0f}};
-    std::vector<std::vector<float>> forceValue = sys->force(testVector);
     FileOperations* fileOpObject = new FileOperations();
 
-    float f = sys->potentialEnergy(testVector);
-    std::cout << " PE : " << f << std::endl;
-    std::cout << " Force : " << forceValue[0][0] << " " << forceValue[0][1] << std::endl;
     stepper->step(sys, fileOpObject, numSteps);
 
     MPI_Finalize();

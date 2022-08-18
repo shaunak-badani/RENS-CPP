@@ -13,12 +13,14 @@ class Langevin : public Integrator {
         float friction;
         float damping;
         float damping_2;
+        bool enableOutput;
 
         Langevin() {
             this->dt = 0.001;
             this->friction = 0.05;
             this->damping = exp(-this->friction * this->dt);
             this->damping_2 = pow(this->damping, 2);
+            this->enableOutput = true;
         }
 
         void step(System* sys, FileOperations* fileOpObject, int numSteps = 1) {
@@ -58,7 +60,7 @@ class Langevin : public Integrator {
                     for(int j = 0 ; j < d ; j++)
                         sys->velocities[i][j] += (this->dt / 2) * (force[i][j] / sys->masses[i]);
 
-                if(n % outputPeriod == 0) {
+                if(n % outputPeriod == 0 && enableOutput) {
                     sys->handleOutput((float)(n * this->dt), fileOpObject);
                 }
             }
