@@ -225,6 +225,10 @@ class RENSIntegrator : public REMDIntegrator {
                     generateNormalRandom(0, sigma);
         }
 
+        // void attemptSwitching(System* sys) {
+
+        // }
+
         void attemptSwitching(System* sys) {
             // MPI_Barrier( MPI_COMM_WORLD );
             if(this->replicaNo % 2 == 0)
@@ -253,6 +257,8 @@ class RENSIntegrator : public REMDIntegrator {
             }
         }
 
+        
+
         /* END RENS FUNCTIONS */
 
         void step(System* sys, FileOperations* fileOpObject, int numSteps = 1) {
@@ -261,7 +267,7 @@ class RENSIntegrator : public REMDIntegrator {
                     stepper->step(sys, fileOpObject);
                     this->attemptSwitching(sys);
                     
-                    if(i % outputPeriod)
+                    if(i % outputPeriod == 0)
                         sys->handleOutput((float) i * this->dt, fileOpObject);
                 }
                 else {
