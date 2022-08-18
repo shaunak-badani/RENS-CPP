@@ -42,7 +42,7 @@ class System {
             return this->kineticEnergy(this->velocities);
         }
 
-        float kineticEnergy(std::vector<std::vector<float>> velocities) {
+        virtual float kineticEnergy(std::vector<std::vector<float>> velocities) {
             float mv2 = 0;
             for(int i = 0 ; i < this->numberOfParticles ; i++) {
                 for(int j = 0 ; j < this->systemDimensionality ; j++) {
@@ -60,7 +60,7 @@ class System {
             return this->instantaneousTemperature(this->velocities);
         }
 
-        float instantaneousTemperature(std::vector<std::vector<float>> velocities) {
+        float instantaneousTemperature(std::vector<std::vector<float>>& velocities) {
             float KE = this->kineticEnergy(velocities);
             return 2 * KE / (this->numberOfParticles * this->systemDimensionality * kB);
         }

@@ -11,6 +11,7 @@
 #include "mpi.h"
 #include "mullermod.h"
 #include "leps.h"
+#include "leonnardjones.h"
 
 int main(int argc, char **argv) {
 
@@ -39,6 +40,8 @@ int main(int argc, char **argv) {
         sys = new LEPS();
     else if(!systemName.compare("LEPS_II"))
         sys = new LEPS2();
+    else if(!systemName.compare("LJ"))
+        sys = new LeonnardJones();
     else
         sys = new Smit();
 
