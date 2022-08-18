@@ -30,6 +30,8 @@ class Langevin : public Integrator {
             float randomNumberHolder;
 
             // Do units conversion in the case of LJ system
+            if(!arbitrary)
+                kT *= (kJ_mol_TO_J) / (AMU_TO_KG) * pow(M_S_TO_A_PS, 2);
             std::vector<std::vector<float>> force = sys->force();
 
             int N = sys->velocities.size();

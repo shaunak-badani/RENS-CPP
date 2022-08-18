@@ -219,6 +219,8 @@ class RENSIntegrator : public REMDIntegrator {
             float sigma = 1 / sqrt(sys->masses[indexForVelocityAssignment] * beta);
 
             // change sigma for non arbitrary units
+            if(!arbitrary)
+                sigma *= sqrt(kJ_mol_TO_J / AMU_TO_KG) * M_S_TO_A_PS;
 
             for(int j = 0 ; j < d ; j++)
                 sys->velocities[indexForVelocityAssignment][j] =
