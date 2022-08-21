@@ -85,6 +85,7 @@ class Muller : public System {
             float y = point[1];
 
             float fX, fY;
+            fX = fY = 0;
 
             float peValue = 0;
             float powValue;
