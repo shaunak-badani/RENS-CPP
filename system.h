@@ -65,7 +65,7 @@ class System {
             return 2 * KE / (this->numberOfParticles * this->systemDimensionality * kB);
         }
 
-        void handleOutput(float timeStep, FileOperations* fileOpObject) {
+        virtual void handleOutput(float timeStep, FileOperations* fileOpObject) {
             fileOpObject->registerScalarData("KE", this->kineticEnergy());
             fileOpObject->registerScalarData("PE", this->potentialEnergy());
             fileOpObject->registerScalarData("TE", this->totalEnergy());
@@ -75,6 +75,12 @@ class System {
             fileOpObject->registerVectorData("p", this->positions);
             fileOpObject->registerVectorData("v", this->velocities);
             fileOpObject->writeVectorData(timeStep);
+        }
+
+        // system based constraints
+
+        virtual void systemConstraints() {
+
         }
 };
 

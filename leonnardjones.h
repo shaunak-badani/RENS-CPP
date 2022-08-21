@@ -138,6 +138,10 @@ class LeonnardJones : public System {
             return this->potentialEnergy(this->positions);
         }
 
+        float kineticEnergy() {
+            return this->kineticEnergy(this->velocities);
+        }
+
         float kineticEnergy(std::vector<std::vector<float>> velocities) {
             float mv2 = 0;
             for(int i = 0 ; i < this->numberOfParticles ; i++) {
@@ -147,6 +151,30 @@ class LeonnardJones : public System {
             }
             return 0.5 * mv2 * NA / KILO;
         } 
+
+        void systemConstraints() {
+            for(int i = 0 ; i < this->numberOfParticles ; i++) {
+                for(int j = 0 ; j < this->systemDimensionality ; j++) {
+                    if(this->positions[i][j] <= -L)
+                        this->positions[i][j] += L;
+                    
+                    if(this->positions[i][j] >= L)
+                        this->positions[i][j] -= L;
+                }
+            }
+        }
+
+        void handleOutput(float timeStep, FileOperations* fileOpObject) {
+            fileOpObject->registerScalarData("KE", this->kineticEnergy());
+            fileOpObject->registerScalarData("PE", this->potentialEnergy());
+            fileOpObject->registerScalarData("TE", this->totalEnergy());
+            fileOpObject->registerScalarData("T", this->instantaneousTemperature());
+            fileOpObject->writeScalarData(timeStep);
+
+            fileOpObject->registerVectorData("p", this->positions);
+            fileOpObject->registerVectorData("v", this->velocities);
+            fileOpObject->writeXYZfiles(timeStep);
+        }
 };
 
 #endif

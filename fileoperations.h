@@ -122,6 +122,35 @@ class FileOperations {
             (this->velocityFileStream) << std::endl;
         }
 
+        void writeXYZfiles(float timestep) {
+
+            (this->positionFileStream) << std::fixed << std::setprecision(3);
+            (this->velocityFileStream) << std::fixed << std::setprecision(3);
+
+            int N = this->phaseVectors["p"].size();
+            int d = this->phaseVectors["p"][0].size();
+
+            (this->positionFileStream) << N << std::endl;
+            (this->positionFileStream) << std::endl;
+
+            for(int i = 0 ; i < N ; i++){
+                (this->positionFileStream) << "Ar ";
+                for(int j = 0 ; j < d ; j++)
+                    (this->positionFileStream) << this->phaseVectors["p"][i][j] << " ";
+                (this->positionFileStream) << std::endl;
+            }
+
+            (this->velocityFileStream) << N << std::endl;
+            (this->velocityFileStream) << std::endl;
+
+            for(int i = 0 ; i < N ; i++){
+                (this->velocityFileStream) << "Ar ";
+                for(int j = 0 ; j < d ; j++)
+                    (this->velocityFileStream) << this->phaseVectors["v"][i][j] << " ";
+                (this->velocityFileStream) << std::endl;
+            }
+        }
+
         /* REMD + RENS SCALARS */
 
         void registerExchangesScalars(std::string key, float value) {

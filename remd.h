@@ -153,6 +153,8 @@ class REMDIntegrator : public Integrator {
                     }
                 }
 
+                sys->systemConstraints();
+
                 if(n % outputPeriod == 0) {
                     sys->handleOutput((float) n * this->dt, fileOpObject);
                 }

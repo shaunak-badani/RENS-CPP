@@ -25,6 +25,8 @@ class MicroCanonical : public Integrator {
                         sys->velocities[i][j] += this->dt * (force[i][j] / (2 * (sys->masses[i])));
                 }
 
+                sys->systemConstraints();
+
                 if(n % outputPeriod == 0) {
                     sys->handleOutput((float)(n * this->dt), fileOpObject);
                 }

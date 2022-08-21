@@ -275,7 +275,7 @@ class RENSIntegrator : public REMDIntegrator {
                 else {
                     this->performWorkSimulation(sys, fileOpObject, (float) i * this->dt);
                 }
-                
+                sys->systemConstraints();
             }
         }
 };

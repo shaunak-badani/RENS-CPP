@@ -65,6 +65,8 @@ class Langevin : public Integrator {
                 if(n % outputPeriod == 0 && enableOutput) {
                     sys->handleOutput((float)(n * this->dt), fileOpObject);
                 }
+
+                sys->systemConstraints();
             }
 
         }
