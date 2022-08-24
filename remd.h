@@ -23,6 +23,7 @@ class REMDIntegrator : public Integrator {
         REMDIntegrator() {
             stepper = new Langevin();
             stepper->enableOutput = false;
+            stepper->handleConstraints = false;
             this->dt = stepper->dt;
             this->exchangePeriod = 100;
             MPI_Comm_rank( MPI_COMM_WORLD, &replicaNo );

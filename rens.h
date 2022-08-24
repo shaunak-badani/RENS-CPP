@@ -216,6 +216,7 @@ class RENSIntegrator : public REMDIntegrator {
 
             int indexForVelocityAssignment = generateUniformRandomInt(0, N);
             float beta = 1 / (kB * T_lambda);
+
             float sigma = 1 / sqrt(sys->masses[indexForVelocityAssignment] * beta);
 
             // change sigma for non arbitrary units

@@ -155,7 +155,7 @@ class LeonnardJones : public System {
         void systemConstraints() {
             for(int i = 0 ; i < this->numberOfParticles ; i++) {
                 for(int j = 0 ; j < this->systemDimensionality ; j++) {
-                    if(this->positions[i][j] <= -L)
+                    if(this->positions[i][j] <= 0)
                         this->positions[i][j] += L;
                     
                     if(this->positions[i][j] >= L)

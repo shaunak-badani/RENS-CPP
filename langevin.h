@@ -14,6 +14,7 @@ class Langevin : public Integrator {
         float damping;
         float damping_2;
         bool enableOutput;
+        bool handleConstraints;
 
         Langevin() {
             this->dt = 0.001;
@@ -21,6 +22,8 @@ class Langevin : public Integrator {
             this->damping = exp(-this->friction * this->dt);
             this->damping_2 = pow(this->damping, 2);
             this->enableOutput = true;
+            this->handleConstraints = true;
+
         }
 
         void step(System* sys, FileOperations* fileOpObject, int numSteps = 1) {
@@ -66,7 +69,8 @@ class Langevin : public Integrator {
                     sys->handleOutput((float)(n * this->dt), fileOpObject);
                 }
 
-                sys->systemConstraints();
+                if(this->handleConstraints)
+                    sys->systemConstraints();
             }
 
         }
