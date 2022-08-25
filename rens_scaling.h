@@ -49,9 +49,11 @@ class RENSScalingIntegrator : public RENSIntegrator {
             int d = v[0].size();
 
             if(this->numWorkSimulationSteps == 0) {
+                this->heat += sys->totalEnergy() / (kB * this->T_A);
                 for(int i = 0 ; i < N ; i++) 
                     for(int j = 0 ; j < d ; j++)
                         v[i][j] *= sqrt(this->T_B / this->T_A);
+                this->heat -= (sys->kineticEnergy(v) + sys->potentialEnergy()) / (kB * this->T_B);
             }
 
             if(this->currentStep >= this->numWorkSimulationSteps) {
