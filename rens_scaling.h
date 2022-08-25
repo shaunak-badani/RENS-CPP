@@ -17,6 +17,8 @@ class RENSScalingIntegrator : public RENSIntegrator {
             rensLangevin->handleConstraints = false;
             rensLangevin->useConfigTemperature = false;
             rensLangevin->temp = temperature();
+            if(this->andersenUpdateFrequency >= this->numWorkSimulationSteps)
+                this->andersenUpdateFrequency = this->numWorkSimulationSteps;
         }
 
         void setupRENS(System* sys) {
