@@ -44,7 +44,7 @@ class RENSIntegrator : public REMDIntegrator {
 
         /* RENS FUNCTIONS */
 
-        void setupRENS(System* sys) {
+        virtual void setupRENS(System* sys) {
             this->T_A = temperature();
             this->w = -sys->totalEnergy() / (kB * this->T_A);
 
@@ -68,7 +68,7 @@ class RENSIntegrator : public REMDIntegrator {
             }
         }
         
-        void performWorkSimulation(System* sys, FileOperations* fileOpObject, float timeStep) {
+        virtual void performWorkSimulation(System* sys, FileOperations* fileOpObject, float timeStep) {
             std::vector<std::vector<float>> v = sys->velocities;
             int N = v.size();
             int d = v[0].size();

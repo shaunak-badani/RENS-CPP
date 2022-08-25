@@ -18,6 +18,7 @@ std::string rst;
 bool isRstPresent;
 bool ada;
 float tauValue;
+bool useScalingProtocol;
 
 float temperature() {
     int noOfReplicas;
@@ -44,6 +45,7 @@ void setDefaultConfig() {
     tauValue = 0.024f;
     isRstPresent = false;
     ada = false;
+    useScalingProtocol = false;
 }
 
 void printConfig(int rank) {
@@ -56,6 +58,7 @@ void printConfig(int rank) {
         std::cout << "Run Type : " << runType << std::endl;
         std::cout << "System : " << systemName << std::endl;
         std::cout << "Tau Value : " << tauValue << std::endl;
+        std::cout << "Use Scaling Protocol : " << useScalingProtocol << std::endl;
     }
    
 }
@@ -101,6 +104,9 @@ void getConfigFromFile(std::string fileName) {
     
     if(data.contains("ada"))
         ada = data["ada"];
+
+    if(data.contains("use_scaling_protocol"))
+        useScalingProtocol = data["use_scaling_protocol"];
     
     
 

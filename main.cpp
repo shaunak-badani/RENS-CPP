@@ -8,6 +8,7 @@
 #include "config.h"
 #include "remd.h"
 #include "rens.h"
+#include "rens_scaling.h"
 #include "mpi.h"
 #include "mullermod.h"
 #include "leps.h"
@@ -53,8 +54,12 @@ int main(int argc, char **argv) {
         stepper = new Langevin();
     else if(!runType.compare("remd"))
         stepper = new REMDIntegrator();
-    else if(!runType.compare("rens")) 
-        stepper = new RENSIntegrator();
+    else if(!runType.compare("rens")) {
+        if(useScalingProtocol)
+            stepper = new RENSScalingIntegrator();
+        else
+            stepper = new RENSIntegrator();
+    }
     else
         stepper = new MicroCanonical();
 

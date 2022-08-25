@@ -15,6 +15,8 @@ class Langevin : public Integrator {
         float damping_2;
         bool enableOutput;
         bool handleConstraints;
+        float temp;
+        bool useConfigTemperature;
 
         Langevin() {
             this->dt = 0.001;
@@ -23,12 +25,18 @@ class Langevin : public Integrator {
             this->damping_2 = pow(this->damping, 2);
             this->enableOutput = true;
             this->handleConstraints = true;
-
+            this->temp = 0.3;
+            this->useConfigTemperature = true;
         }
 
         void step(System* sys, FileOperations* fileOpObject, int numSteps = 1) {
 
-            float kT = temperature() * kB;
+            float langevinTemperature = temperature();
+            
+            if(!useConfigTemperature)
+                langevinTemperature = this->temp;
+
+            float kT = langevinTemperature * kB;
             float sigma;
             float randomNumberHolder;
 
