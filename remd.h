@@ -25,7 +25,7 @@ class REMDIntegrator : public Integrator {
             stepper->enableOutput = false;
             stepper->handleConstraints = false;
             this->dt = stepper->dt;
-            this->exchangePeriod = 100;
+            this->exchangePeriod = 1000;
             MPI_Comm_rank( MPI_COMM_WORLD, &replicaNo );
             this->isMaster = (replicaNo == 0);
         }
