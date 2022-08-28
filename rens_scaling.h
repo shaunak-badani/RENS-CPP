@@ -17,6 +17,7 @@ class RENSScalingIntegrator : public RENSIntegrator {
             rensLangevin->handleConstraints = false;
             rensLangevin->useConfigTemperature = false;
             rensLangevin->temp = temperature();
+            this->andersenUpdateFrequency = 50;
             if(this->andersenUpdateFrequency >= this->numWorkSimulationSteps)
                 this->andersenUpdateFrequency = this->numWorkSimulationSteps;
         }
@@ -83,7 +84,11 @@ class RENSScalingIntegrator : public RENSIntegrator {
                 T_prev = this->T_A + lambda * (this->T_B - this->T_A);
                 this->heat += (sys->totalEnergy()) / (kB * T_prev);
 
-                lambda = ((float) (this->currentStep + this->andersenUpdateFrequency) * this->dt) / this->tau;
+                float addition = this->andersenUpdateFrequency;
+                if(addition > (this->numWorkSimulationSteps - this->currentStep))
+                    addition = this->numWorkSimulationSteps - this->currentStep;
+
+                lambda = ((float) (this->currentStep + addition) * this->dt) / this->tau;
                 T_next = this->T_A + lambda * (this->T_B - this->T_A);                    
 
                 for(int i = 0 ; i < sys->numberOfParticles ; i++) {
