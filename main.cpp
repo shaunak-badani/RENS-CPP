@@ -13,6 +13,7 @@
 #include "mullermod.h"
 #include "leps.h"
 #include "leonnardjones.h"
+#include "complex2d.h"
 
 int main(int argc, char **argv) {
 
@@ -43,6 +44,8 @@ int main(int argc, char **argv) {
         sys = new LEPS2();
     else if(!systemName.compare("LJ"))
         sys = new LeonnardJones();
+    else if(!systemName.compare("Complex_2D"))
+        sys = new Complex2D();
     else
         sys = new Smit();
 
