@@ -1,0 +1,72 @@
+#include "langevin.h"
+#include "integrator.h"
+#include "system.h"
+#include "config.h"
+#include "math.h"
+#include "utilities.h"
+#include "fileoperations.h"
+
+Langevin::Langevin() {
+    this->dt = 0.001;
+    this->friction = 0.05;
+    this->damping = exp(-this->friction * this->dt);
+    this->damping_2 = pow(this->damping, 2);
+    this->enableOutput = true;
+    this->handleConstraints = true;
+    this->temp = 0.3;
+    this->useConfigTemperature = true;
+}
+
+void Langevin::step(System* sys, FileOperations* fileOpObject, int numSteps) {
+
+    float langevinTemperature = temperature();
+    
+    if(!useConfigTemperature)
+        langevinTemperature = this->temp;
+
+    float kT = langevinTemperature * kB;
+    float sigma;
+    float randomNumberHolder;
+
+    // Do units conversion in the case of LJ system
+    if(!arbitrary)
+        kT *= (kJ_mol_TO_J) / (AMU_TO_KG) * pow(M_S_TO_A_PS, 2);
+    std::vector<std::vector<float>> force = sys->force();
+
+    int N = sys->velocities.size();
+    int d = sys->velocities[0].size();
+    for(int n = 0 ; n < numSteps ; n++) {
+        for(int i = 0 ; i < N ; i++) {
+            for(int j = 0 ; j < d ; j++) {
+                sys->velocities[i][j] += (this->dt / 2) * (force[i][j] / sys->masses[i]);
+                sys->positions[i][j] += (this->dt / 2) * sys->velocities[i][j];
+            }
+        }
+
+        for(int i = 0 ; i < N ; i++) {
+            for(int j = 0 ; j < d ; j++) {
+                sys->velocities[i][j] *= this->damping;
+                sigma = sqrt((kT / sys->masses[i]) * (1 - this->damping_2));
+                randomNumberHolder = generateNormalRandom(0, sigma);
+                // std::cout << (randomNumberHolder) << std::endl;
+                sys->velocities[i][j] += randomNumberHolder;
+
+                sys->positions[i][j] += (this->dt / 2) * sys->velocities[i][j];
+            }
+        }
+
+
+        force = sys->force();
+        for(int i = 0 ; i < N ; i++) 
+            for(int j = 0 ; j < d ; j++)
+                sys->velocities[i][j] += (this->dt / 2) * (force[i][j] / sys->masses[i]);
+
+        if(n % outputPeriod == 0 && enableOutput) {
+            sys->handleOutput((float)(n * this->dt), fileOpObject);
+        }
+
+        if(this->handleConstraints)
+            sys->systemConstraints();
+    }
+
+}

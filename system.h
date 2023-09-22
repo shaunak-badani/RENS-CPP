@@ -21,16 +21,7 @@ class System {
         virtual void setupSystem() = 0;
         virtual void initializePositions() = 0;
 
-        void initializeVelocities() {
-            float sigma;
-            for(int i = 0 ; i < this->numberOfParticles ; i++) {
-                this->velocities.push_back(std::vector<float>(this->systemDimensionality, 0.0f));
-                for(int j = 0 ; j < this->systemDimensionality ; j++) {
-                    sigma = sqrt(kB * temperature() / this->masses[i]);
-                    this->velocities[i][j] = generateNormalRandom(0.0f, sigma);
-                }
-            }
-        }
+        void initializeVelocities();
 
         virtual float potentialEnergy() = 0;
         virtual float potentialEnergy(std::vector<std::vector<float>>& positions) = 0;
@@ -38,50 +29,21 @@ class System {
         virtual std::vector<std::vector<float>> force() = 0;
         virtual std::vector<std::vector<float>> force(std::vector<std::vector<float>>& positions) = 0;
 
-        float kineticEnergy() {
-            return this->kineticEnergy(this->velocities);
-        }
+        float kineticEnergy();
 
-        virtual float kineticEnergy(std::vector<std::vector<float>> velocities) {
-            float mv2 = 0;
-            for(int i = 0 ; i < this->numberOfParticles ; i++) {
-                for(int j = 0 ; j < this->systemDimensionality ; j++) {
-                    mv2 += this->masses[i] * pow(velocities[i][j], 2);
-                }
-            }
-            return 0.5 * mv2;
-        }
+        virtual float kineticEnergy(std::vector<std::vector<float>> velocities);
 
-        float totalEnergy() {
-            return this->potentialEnergy() + this->kineticEnergy();
-        }
+        float totalEnergy();
 
-        float instantaneousTemperature() {
-            return this->instantaneousTemperature(this->velocities);
-        }
+        float instantaneousTemperature();
 
-        float instantaneousTemperature(std::vector<std::vector<float>>& velocities) {
-            float KE = this->kineticEnergy(velocities);
-            return 2 * KE / (this->numberOfParticles * this->systemDimensionality * kB);
-        }
+        float instantaneousTemperature(std::vector<std::vector<float>>& velocities);
 
-        virtual void handleOutput(float timeStep, FileOperations* fileOpObject) {
-            fileOpObject->registerScalarData("KE", this->kineticEnergy());
-            fileOpObject->registerScalarData("PE", this->potentialEnergy());
-            fileOpObject->registerScalarData("TE", this->totalEnergy());
-            fileOpObject->registerScalarData("T", this->instantaneousTemperature());
-            fileOpObject->writeScalarData(timeStep);
-
-            fileOpObject->registerVectorData("p", this->positions);
-            fileOpObject->registerVectorData("v", this->velocities);
-            fileOpObject->writeVectorData(timeStep);
-        }
+        virtual void handleOutput(float timeStep, FileOperations* fileOpObject);
 
         // system based constraints
 
-        virtual void systemConstraints() {
-
-        }
+        virtual void systemConstraints();
 };
 
 #endif

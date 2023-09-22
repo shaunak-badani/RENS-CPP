@@ -8,64 +8,24 @@ class Complex2D : public System {
 
     public:
 
-        Complex2D() {
-            this->setupSystem();
-            this->initializePositions();
-            this->initializeVelocities();
-        }
+        Complex2D();
 
-        void setupSystem() {
-            this->numberOfParticles = numParticles;
-            this->systemDimensionality = 2;
-            for(int i = 0 ; i < this->numberOfParticles ; i++)
-                this->masses.push_back(1.0f);
-        }
+        void setupSystem();
 
-        void initializePositions() {
-            this->positions = initializeRandomVector(this->numberOfParticles,
-                                            this->systemDimensionality,
-                                            -1.0f, 1.0f);
-        }
+        void initializePositions();
 
-        float potentialEnergy(std::vector<std::vector<float>>& pos) {
-            float peValue = 0;
-            for(int i = 0 ; i < this->numberOfParticles ; i++) 
-                peValue += U(pos[i]);                 
-            return peValue;
-        }
+        float potentialEnergy(std::vector<std::vector<float>>& pos);
 
-        float potentialEnergy() {
-            return potentialEnergy(this->positions);
-        }
+        float potentialEnergy();
 
-        std::vector<std::vector<float>> force(std::vector<std::vector<float>>& pos) {
-            std::vector<std::vector<float>> returnValue;
-            for(int i = 0 ; i < this->numberOfParticles ; i++) 
-                returnValue.push_back(F(pos[i]));                 
-            return returnValue;
-        }
-        
-        std::vector<std::vector<float>> force() {
-            return this->force(this->positions);
-        }
+        std::vector<std::vector<float>> force(std::vector<std::vector<float>>& pos);
+
+        std::vector<std::vector<float>> force();
     
     protected:
-        float U(std::vector<float>& pos) {
-            float x = pos[0];
-            float y = pos[1];
+        float U(std::vector<float>& pos);
 
-            return 10 * (pow(x, 10) + pow(y, 10)) + 5 * sin(2 * M_PI * x) * cos(2 * M_PI * y);
-        }
-
-        std::vector<float> F(std::vector<float>& pos) {
-            float x = pos[0];
-            float y = pos[1];
-
-            float fX = -1 * (100 * pow(x, 9) + 10 * M_PI * cos(2 * M_PI * x) * cos(2 * M_PI * y));            
-            float fY = -1 * (100 * pow(y, 9) - 10 * M_PI * sin(2 * M_PI * x) * sin(2 * M_PI * y));
-
-            return {fX, fY};
-        }
+        std::vector<float> F(std::vector<float>& pos);
 
 };
 
