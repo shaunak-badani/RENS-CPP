@@ -14,6 +14,7 @@
 #include "leps.h"
 #include "leonnardjones.h"
 #include "complex2d.h"
+#include "SystemFactory.h"
 
 int main(int argc, char **argv) {
 
@@ -31,23 +32,7 @@ int main(int argc, char **argv) {
     }
     printConfig(rank);
 
-    System* sys;
-    if(!systemName.compare("1D_Smit"))
-        sys = new Smit();
-    else if(!systemName.compare("Muller"))
-        sys = new Muller();
-    else if(!systemName.compare("MullerMod"))
-        sys = new MullerMod();
-    else if(!systemName.compare("LEPS_I"))
-        sys = new LEPS();
-    else if(!systemName.compare("LEPS_II"))
-        sys = new LEPS2();
-    else if(!systemName.compare("LJ"))
-        sys = new LeonnardJones();
-    else if(!systemName.compare("Complex_2D"))
-        sys = new Complex2D();
-    else
-        sys = new Smit();
+    System* sys = SystemFactory::createSystem(systemName);
 
     Integrator* stepper;
 
