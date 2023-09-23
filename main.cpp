@@ -2,19 +2,12 @@
 #include "smit.h"
 #include "system.h"
 #include "integrator.h"
-#include "microcanonical.h"
 #include "langevin.h"
 #include "fileoperations.h"
 #include "config.h"
-#include "remd.h"
-#include "rens.h"
-#include "rens_scaling.h"
 #include "mpi.h"
-#include "mullermod.h"
-#include "leps.h"
-#include "leonnardjones.h"
-#include "complex2d.h"
 #include "SystemFactory.h"
+#include "PropagatorFactory.h"
 
 int main(int argc, char **argv) {
 
@@ -34,23 +27,8 @@ int main(int argc, char **argv) {
 
     System* sys = SystemFactory::createSystem(systemName);
 
-    Integrator* stepper;
-
-    if(!runType.compare("nve"))
-        stepper = new MicroCanonical();
-    else if(!runType.compare("nvt")) 
-        stepper = new Langevin();
-    else if(!runType.compare("remd"))
-        stepper = new REMDIntegrator();
-    else if(!runType.compare("rens")) {
-        if(useScalingProtocol)
-            stepper = new RENSScalingIntegrator();
-        else
-            stepper = new RENSIntegrator();
-    }
-    else
-        stepper = new MicroCanonical();
-
+    Integrator* stepper = PropagatorFactory::instantiatePropagator(runType);
+    
     FileOperations* fileOpObject = new FileOperations();
 
     stepper->step(sys, fileOpObject, numSteps);

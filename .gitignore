@@ -5,3 +5,4 @@ notebooks
 .vscode
 a.out
 rens
+*.o
