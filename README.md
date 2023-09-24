@@ -92,6 +92,17 @@ This repository is an extension of the original work by Prof. Jarzynski and Dr. 
 
     ```
 
+### Compiling individual modules
+
+* system:
+  ```
+  mpic++ -I ../common/ *.cpp ../common/*.cpp -o system
+  ```
+* complete module:
+  ```
+  mpic++ *.cpp system/{complex2d,leonnardjones,leps,mullermod,smit,system}.cpp common/*.cpp factories/*.cpp -I system/ -I common/ -I utilities/ -Ifactories/ -o rens
+  ```
+
 ## Systems 
 
 The module implements a couple of interesting toy systems on which MD is performed. 
